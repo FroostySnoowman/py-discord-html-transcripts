@@ -141,8 +141,7 @@ class TranscriptDAO:
             ("CHANNEL_TOPIC", str(channel_topic_html), PARSE_MODE_NONE),
             ("CHANNEL_ID", str(self.channel.id), PARSE_MODE_NONE),
             ("MESSAGE_PARTICIPANTS", str(len(meta_data)), PARSE_MODE_NONE),
-            ("FANCY_TIME", _fancy_time, PARSE_MODE_NONE),
-            ("SD", sd, PARSE_MODE_NONE)
+            ("FANCY_TIME", _fancy_time, PARSE_MODE_NONE)
         ])
 
 
