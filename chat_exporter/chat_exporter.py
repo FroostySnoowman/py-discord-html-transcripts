@@ -32,7 +32,6 @@ async def quick_export(
             fancy_times=True,
             before=None,
             after=None,
-            support_dev=True,
             bot=bot,
             ).export()
         ).html
@@ -58,7 +57,6 @@ async def export(
     fancy_times: Optional[bool] = True,
     before: Optional[datetime.datetime] = None,
     after: Optional[datetime.datetime] = None,
-    support_dev: Optional[bool] = True,
 ):
     """
     Create a customised transcript of your Discord channel.
@@ -87,7 +85,6 @@ async def export(
             fancy_times=fancy_times,
             before=before,
             after=after,
-            support_dev=support_dev,
             bot=bot,
         ).export()
     ).html
@@ -100,7 +97,6 @@ async def raw_export(
     bot: Optional[discord.Client] = None,
     military_time: Optional[bool] = False,
     fancy_times: Optional[bool] = True,
-    support_dev: Optional[bool] = True,
 ):
     """
     Create a customised transcript with your own captured Discord messages
@@ -127,7 +123,6 @@ async def raw_export(
             fancy_times=fancy_times,
             before=None,
             after=None,
-            support_dev=support_dev,
             bot=bot,
         ).export()
     ).html

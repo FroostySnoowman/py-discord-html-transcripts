@@ -32,7 +32,6 @@ class TranscriptDAO:
         fancy_times: bool,
         before: Optional[datetime.datetime],
         after: Optional[datetime.datetime],
-        support_dev: bool,
         bot: Optional[discord.Client],
     ):
         self.channel = channel
@@ -42,7 +41,6 @@ class TranscriptDAO:
         self.fancy_times = fancy_times
         self.before = before
         self.after = after
-        self.support_dev = support_dev
         self.pytz_timezone = pytz_timezone
 
         # This is to pass timezone in to mention.py without rewriting
@@ -121,12 +119,6 @@ class TranscriptDAO:
             ("CHANNEL_NAME", self.channel.name),
             ("RAW_CHANNEL_TOPIC", str(raw_channel_topic))
         ])
-
-        sd = (
-            '<div class="meta__support">'
-            '    <a href="https://ko-fi.com/mahtoid">DONATE</a>'
-            '</div>'
-        ) if self.support_dev else ""
 
         _fancy_time = ""
 
