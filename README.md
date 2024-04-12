@@ -3,11 +3,15 @@
 </div>
 
 ---
+## Credits
+This code was NOT made by me, but is a fork and altered for my needs. All credit goes to the original developer.
+
+---
 ## Installation
 
 To install the library to your virtual environment, for bot usage, run the command:
 ```sh 
-pip install -U git+https://github.com/FroostySnoowman/py-discord-html-transcripts
+pip install py-discord-html-transcripts
 ```
 
 ---
