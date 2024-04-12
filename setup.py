@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(
-    name="py_discord_html_transcripts",
+    name="pdtransripts",
     version="1.0.0",
     author="FroostySnoowman",
     author_email="froostysnoowmanbusiness@gmail.com",
