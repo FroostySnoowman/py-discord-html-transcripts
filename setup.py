@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="py_discord_html_transcripts",
-    version="1.0.0",
+    version="1.0.1",
     author="FroostySnoowman",
     author_email="froostysnoowmanbusiness@gmail.com",
     description="A simple Discord chat exporter for Python Discord bots.",
