@@ -162,5 +162,5 @@ class Transcript(TranscriptDAO):
         except Exception:
             self.html = "Whoops! Something went wrong..."
             traceback.print_exc()
-            print("Please send a screenshot of the above error to https://www.github.com/mahtoid/DiscordChatExporterPy")
+            print("Please send a screenshot of the above error to https://github.com/FroostySnoowman/py-discord-html-transcripts")
             return self

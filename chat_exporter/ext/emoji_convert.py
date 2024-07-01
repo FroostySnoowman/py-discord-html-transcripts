@@ -23,7 +23,6 @@ def valid_category(char):
         return False
 
 async def codepoint(codes):
-    # See https://github.com/twitter/twemoji/issues/419#issuecomment-637360325
     if "200d" not in codes:
         return "-".join([c for c in codes if c != "fe0f"])
     return "-".join(codes)

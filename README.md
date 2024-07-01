@@ -6,6 +6,9 @@
 ## Credits
 This code was NOT made by me, but is a fork and altered for my needs. All credit goes to the original developer.
 
+# Requirements
+`discord.py` v2.4.0 or later
+
 ---
 ## Installation
 
