@@ -4,6 +4,7 @@ from typing import List, Optional
 
 from chat_exporter.construct.transcript import Transcript
 from chat_exporter.ext.discord_import import discord
+from chat_exporter.construct.attachment_handler import AttachmentHandler, AttachmentToLocalFileHostHandler, AttachmentToDiscordChannelHandler
 
 async def quick_export(
     channel: discord.TextChannel,
@@ -32,7 +33,9 @@ async def quick_export(
             fancy_times=True,
             before=None,
             after=None,
+            support_dev=True,
             bot=bot,
+            attachment_handler=None
             ).export()
         ).html
 
@@ -57,6 +60,8 @@ async def export(
     fancy_times: Optional[bool] = True,
     before: Optional[datetime.datetime] = None,
     after: Optional[datetime.datetime] = None,
+    support_dev: Optional[bool] = True,
+    attachment_handler: Optional[AttachmentHandler] = None,
 ):
     """
     Create a customised transcript of your Discord channel.
@@ -70,6 +75,7 @@ async def export(
     :param fancy_times: (optional) boolean - set javascript around time display
     :param before: (optional) datetime.datetime - allows before time for history
     :param after: (optional) datetime.datetime - allows after time for history
+    :param attachment_handler: (optional) attachment_handler.AttachmentHandler - allows custom asset handling
     :return: string - transcript file make up
     """
     if guild:
@@ -85,7 +91,9 @@ async def export(
             fancy_times=fancy_times,
             before=before,
             after=after,
+            support_dev=support_dev,
             bot=bot,
+            attachment_handler=attachment_handler,
         ).export()
     ).html
 
@@ -97,6 +105,8 @@ async def raw_export(
     bot: Optional[discord.Client] = None,
     military_time: Optional[bool] = False,
     fancy_times: Optional[bool] = True,
+    support_dev: Optional[bool] = True,
+    attachment_handler: Optional[AttachmentHandler] = None,
 ):
     """
     Create a customised transcript with your own captured Discord messages
@@ -108,6 +118,7 @@ async def raw_export(
     :param bot: (optional) discord.Client - set getting member role colour
     :param military_time: (optional) boolean - set military time (24hour clock)
     :param fancy_times: (optional) boolean - set javascript around time display
+    :param attachment_handler: (optional) AttachmentHandler - allows custom asset handling
     :return: string - transcript file make up
     """
     if guild:
@@ -123,38 +134,8 @@ async def raw_export(
             fancy_times=fancy_times,
             before=None,
             after=None,
+            support_dev=support_dev,
             bot=bot,
+            attachment_handler=attachment_handler
         ).export()
     ).html
-
-async def quick_link(
-    channel: discord.TextChannel,
-    message: discord.Message
-):
-    """
-    Create a quick link for your transcript file.
-    This function will return an embed with a link to view the transcript online.
-    :param channel: discord.TextChannel
-    :param message: discord.Message
-    :return: discord.Message (posted link)
-    """
-    embed = discord.Embed(
-        title="Transcript Link",
-        description=(
-            f"[Click here to view the transcript](https://mahto.id/chat-exporter?url={message.attachments[0].url})"
-        ),
-        colour=discord.Colour.blurple(),
-    )
-
-    return await channel.send(embed=embed)
-
-async def link(
-    message: discord.Message
-):
-    """
-    Returns a link which you can use to display in a message.
-    This function will return a string of the link.
-    :param message: discord.Message
-    :return: string (link: https://mahto.id/chat-exporter?url=ATTACHMENT_URL)
-    """
-    return "https://mahto.id/chat-exporter?url=" + message.attachments[0].url

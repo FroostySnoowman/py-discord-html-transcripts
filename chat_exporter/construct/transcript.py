@@ -1,17 +1,14 @@
+import traceback
 import datetime
 import html
-import traceback
-
+import pytz
 import re
 from typing import List, Optional
 
-import pytz
-
+from chat_exporter.construct.attachment_handler import AttachmentHandler
 from chat_exporter.ext.discord_import import discord
-
 from chat_exporter.construct.message import gather_messages
 from chat_exporter.construct.assets.component import Component
-
 from chat_exporter.ext.cache import clear_cache
 from chat_exporter.parse.mention import pass_bot
 from chat_exporter.ext.discord_utils import DiscordUtils
@@ -32,7 +29,9 @@ class TranscriptDAO:
         fancy_times: bool,
         before: Optional[datetime.datetime],
         after: Optional[datetime.datetime],
+        support_dev: bool,
         bot: Optional[discord.Client],
+        attachment_handler: Optional[AttachmentHandler],
     ):
         self.channel = channel
         self.messages = messages
@@ -41,7 +40,9 @@ class TranscriptDAO:
         self.fancy_times = fancy_times
         self.before = before
         self.after = after
+        self.support_dev = support_dev
         self.pytz_timezone = pytz_timezone
+        self.attachment_handler = attachment_handler
 
         # This is to pass timezone in to mention.py without rewriting
         setattr(discord.Guild, "timezone", self.pytz_timezone)
@@ -55,6 +56,7 @@ class TranscriptDAO:
             self.channel.guild,
             self.pytz_timezone,
             self.military_time,
+            self.attachment_handler
         )
         await self.export_transcript(message_html, meta_data)
         clear_cache()
@@ -69,7 +71,10 @@ class TranscriptDAO:
         guild_name = html.escape(self.channel.guild.name)
 
         timezone = pytz.timezone(self.pytz_timezone)
-        time_now = datetime.datetime.now(timezone).strftime("%e %B %Y at %T (%Z)")
+        if self.military_time:
+            time_now = datetime.datetime.now(timezone).strftime("%e %B %Y at %H:%M:%S (%Z)")
+        else:
+            time_now = datetime.datetime.now(timezone).strftime("%e %B %Y at %I:%M:%S %p (%Z)")
 
         meta_data_html: str = ""
         for data in meta_data:
@@ -98,7 +103,10 @@ class TranscriptDAO:
                 ("MESSAGE_COUNT", str(meta_data[int(data)][4]))
             ])
 
-        channel_creation_time = self.channel.created_at.astimezone(timezone).strftime("%b %d, %Y (%T)")
+        if self.military_time:
+            channel_creation_time = self.channel.created_at.astimezone(timezone).strftime("%b %d, %Y (%H:%M:%S)")
+        else:
+            channel_creation_time = self.channel.created_at.astimezone(timezone).strftime("%b %d, %Y (%I:%M:%S %p)")
 
         raw_channel_topic = (
             self.channel.topic if isinstance(self.channel, discord.TextChannel) and self.channel.topic else ""
@@ -123,7 +131,13 @@ class TranscriptDAO:
         _fancy_time = ""
 
         if self.fancy_times:
+            if self.military_time:
+                time_format = "HH:mm"
+            else:
+                time_format = "hh:mm A"
+
             _fancy_time = await fill_out(self.channel.guild, fancy_time, [
+                ("TIME_FORMAT", time_format, PARSE_MODE_NONE),
                 ("TIMEZONE", str(self.pytz_timezone), PARSE_MODE_NONE)
             ])
 

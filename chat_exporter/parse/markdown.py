@@ -5,13 +5,16 @@ from chat_exporter.ext.emoji_convert import convert_emoji
 class ParseMarkdown:
     def __init__(self, content):
         self.content = content
+        self.code_blocks_content = []
+
 
     async def standard_message_flow(self):
+        self.parse_code_block_markdown()
         self.https_http_links()
         self.parse_normal_markdown()
-        self.parse_code_block_markdown()
-        await self.parse_emoji()
 
+        await self.parse_emoji()
+        self.reverse_code_block_markdown()
         return self.content
 
     async def link_embed_flow(self):
@@ -19,26 +22,29 @@ class ParseMarkdown:
         await self.parse_emoji()
 
     async def standard_embed_flow(self):
+        self.parse_code_block_markdown()
         self.https_http_links()
         self.parse_embed_markdown()
         self.parse_normal_markdown()
-        self.parse_code_block_markdown()
-        await self.parse_emoji()
 
+        await self.parse_emoji()
+        self.reverse_code_block_markdown()
         return self.content
 
     async def special_embed_flow(self):
         self.https_http_links()
-        self.parse_normal_markdown()
         self.parse_code_block_markdown()
-        await self.parse_emoji()
+        self.parse_normal_markdown()
 
+        await self.parse_emoji()
+        self.reverse_code_block_markdown()
         return self.content
 
     async def message_reference_flow(self):
         self.strip_preserve()
-        self.parse_normal_markdown()
         self.parse_code_block_markdown(reference=True)
+        self.parse_normal_markdown()
+        self.reverse_code_block_markdown()
         self.parse_br()
 
         return self.content
@@ -94,7 +100,7 @@ class ParseMarkdown:
                 indent = len(indent)
 
                 if started:
-                    html += '<ul class="markup">\n'
+                    html += '<ul class="markup" style="padding-left: 20px;margin: 0 !important">\n'
                     started = False
                 if indent % 2 == 0:
                     while indent < indent_stack[-1]:
@@ -113,25 +119,30 @@ class ParseMarkdown:
 
                 html += f'<li class="markup">{content.strip()}</li>\n'
             else:
-                html += line
+                while len(indent_stack) > 1:
+                    html += '</ul>'
+                    indent_stack.pop()
+                if not started:
+                    html += '</ul>'
+                    started = True
+                html += line + '\n'
 
         while len(indent_stack) > 1:
             html += '</ul>\n'
             indent_stack.pop()
 
-        if not started:
-            self.content = html
+        self.content = html
 
     def parse_normal_markdown(self):
-        # self.order_list_markdown_to_html()
+        self.order_list_markdown_to_html()
         holder = (
             [r"__(.*?)__", '<span style="text-decoration: underline">%s</span>'],
             [r"\*\*(.*?)\*\*", '<strong>%s</strong>'],
             [r"\*(.*?)\*", '<em>%s</em>'],
             [r"~~(.*?)~~", '<span style="text-decoration: line-through">%s</span>'],
-            # [r"###\s(.*?)\n", '<h3>%s</h1>'],
-            # [r"##\s(.*?)\n", '<h2>%s</h1>'],
-            # [r"#\s(.*?)\n", '<h1>%s</h1>'],
+            [r"^###\s(.*?)\n", '<h3>%s</h1>'],
+            [r"^##\s(.*?)\n", '<h2>%s</h1>'],
+            [r"^#\s(.*?)\n", '<h1>%s</h1>'],
             [r"\|\|(.*?)\|\|", '<span class="spoiler spoiler--hidden" onclick="showSpoiler(event, this)"> <span '
                                'class="spoiler-text">%s</span></span>'],
         )
@@ -139,7 +150,7 @@ class ParseMarkdown:
         for x in holder:
             p, r = x
 
-            pattern = re.compile(p)
+            pattern = re.compile(p, re.M)
             match = re.search(pattern, self.content)
             while match is not None:
                 affected_text = match.group(1)
@@ -204,15 +215,16 @@ class ParseMarkdown:
                 second_match = re.search(second_pattern, affected_text)
             affected_text = re.sub("  ", "&nbsp;&nbsp;", affected_text)
 
+            self.code_blocks_content.append(affected_text)
             if not reference:
                 self.content = self.content.replace(
                     self.content[match.start():match.end()],
-                    '<div class="pre pre--multiline %s">%s</div>' % (language_class, affected_text)
+                    '<div class="pre pre--multiline %s">%s</div>' % (language_class, f'%s{len(self.code_blocks_content)}')
                 )
             else:
                 self.content = self.content.replace(
                     self.content[match.start():match.end()],
-                    '<span class="pre pre-inline">%s</span>' % affected_text
+                    '<span class="pre pre-inline">%s</span>' % f'%s{len(self.code_blocks_content)}'
                 )
 
             match = re.search(pattern, self.content)
@@ -223,8 +235,9 @@ class ParseMarkdown:
         while match is not None:
             affected_text = match.group(1)
             affected_text = self.return_to_markdown(affected_text)
+            self.code_blocks_content.append(affected_text)
             self.content = self.content.replace(self.content[match.start():match.end()],
-                                                '<span class="pre pre-inline">%s</span>' % affected_text)
+                                                '<span class="pre pre-inline">%s</span>' % f'%s{len(self.code_blocks_content)}')
             match = re.search(pattern, self.content)
 
         # `code`
@@ -233,11 +246,16 @@ class ParseMarkdown:
         while match is not None:
             affected_text = match.group(1)
             affected_text = self.return_to_markdown(affected_text)
+            self.code_blocks_content.append(affected_text)
             self.content = self.content.replace(self.content[match.start():match.end()],
-                                                '<span class="pre pre-inline">%s</span>' % affected_text)
+                                                '<span class="pre pre-inline">%s</span>' % f'%s{len(self.code_blocks_content)}')
             match = re.search(pattern, self.content)
 
         self.content = re.sub(r"<br>", "\n", self.content)
+
+    def reverse_code_block_markdown(self):
+        for x in range(len(self.code_blocks_content)):
+            self.content = self.content.replace(f'%s{x + 1}', self.code_blocks_content[x])
 
     def parse_embed_markdown(self):
         # [Message](Link)
@@ -369,28 +387,34 @@ class ParseMarkdown:
 
                 if "&lt;" in word and "&gt;" in word:
                     pattern = r"&lt;https?:\/\/(.*)&gt;"
-                    match_url = re.search(pattern, word).group(1)
-                    url = f'<a href="https://{match_url}">https://{match_url}</a>'
-                    word = word.replace("https://" + match_url, url)
-                    word = word.replace("http://" + match_url, url)
+                    match_url = re.search(pattern, word)
+                    if match_url:
+                        match_url = match_url.group(1)
+                        url = f'<a href="https://{match_url}">https://{match_url}</a>'
+                        word = word.replace("https://" + match_url, url)
+                        word = word.replace("http://" + match_url, url)
                     output.append(remove_silent_link(word, match_url))
                 elif "https://" in word:
                     pattern = r"https://[^\s>`\"*]*"
-                    word_link = re.search(pattern, word).group()
-                    if word_link.endswith(")"):
+                    word_link = re.search(pattern, word)
+                    if word_link and word_link.group().endswith(")"):
                         output.append(word)
                         continue
-                    word_full = f'<a href="{word_link}">{word_link}</a>'
-                    word = re.sub(pattern, word_full, word)
+                    elif word_link:
+                        word_link = word_link.group()
+                        word_full = f'<a href="{word_link}">{word_link}</a>'
+                        word = re.sub(pattern, word_full, word)
                     output.append(remove_silent_link(word))
                 elif "http://" in word:
                     pattern = r"http://[^\s>`\"*]*"
-                    word_link = re.search(pattern, word).group()
-                    if word_link.endswith(")"):
+                    word_link = re.search(pattern, word)
+                    if word_link and word_link.group().endswith(")"):
                         output.append(word)
                         continue
-                    word_full = f'<a href="{word_link}">{word_link}</a>'
-                    word = re.sub(pattern, word_full, word)
+                    elif word_link:
+                        word_link = word_link.group()
+                        word_full = f'<a href="{word_link}">{word_link}</a>'
+                        word = re.sub(pattern, word_full, word)
                     output.append(remove_silent_link(word))
                 else:
                     output.append(word)

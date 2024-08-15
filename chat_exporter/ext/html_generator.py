@@ -1,5 +1,4 @@
 import os
-
 from chat_exporter.parse.mention import ParseMention
 from chat_exporter.parse.markdown import ParseMarkdown
 
@@ -34,7 +33,7 @@ async def fill_out(guild, base, replacements):
         elif mode == PARSE_MODE_EMOJI:
             v = await ParseMarkdown(v).special_emoji_flow()
 
-        base = base.replace("{{" + k + "}}", v)
+        base = base.replace("{{" + k + "}}", v.strip())
 
     return base
 
