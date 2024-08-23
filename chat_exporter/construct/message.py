@@ -177,9 +177,9 @@ class MessageConstruct:
         is_bot = _gather_user_bot(message.author)
         user_colour = await self._gather_user_colour(message.author)
 
-        if not message.content and not getattr(message, 'interaction_metadata', None) and not getattr(message, 'interaction', None):
+        if not message.content and not getattr(message, 'interaction_metadata', None):
             message.content = "Click to see attachment"
-        elif not message.content and ((hasattr(message, 'interaction_metadata') and message.interaction_metadata) or message.interaction):
+        elif not message.content and getattr(message, 'interaction_metadata', None):
             message.content = "Click to see command"
 
         icon = ""
