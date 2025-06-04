@@ -4,7 +4,7 @@ from typing import List, Optional
 
 from chat_exporter.construct.transcript import Transcript
 from chat_exporter.ext.discord_import import discord
-from chat_exporter.construct.attachment_handler import AttachmentHandler, AttachmentToLocalFileHostHandler, AttachmentToDiscordChannelHandler
+from chat_exporter.construct.attachment_handler import AttachmentHandler
 
 async def quick_export(
     channel: discord.TextChannel,
@@ -33,7 +33,6 @@ async def quick_export(
             fancy_times=True,
             before=None,
             after=None,
-            support_dev=True,
             bot=bot,
             attachment_handler=None
             ).export()
@@ -60,7 +59,6 @@ async def export(
     fancy_times: Optional[bool] = True,
     before: Optional[datetime.datetime] = None,
     after: Optional[datetime.datetime] = None,
-    support_dev: Optional[bool] = True,
     attachment_handler: Optional[AttachmentHandler] = None,
 ):
     """
@@ -91,7 +89,6 @@ async def export(
             fancy_times=fancy_times,
             before=before,
             after=after,
-            support_dev=support_dev,
             bot=bot,
             attachment_handler=attachment_handler,
         ).export()
@@ -105,7 +102,6 @@ async def raw_export(
     bot: Optional[discord.Client] = None,
     military_time: Optional[bool] = False,
     fancy_times: Optional[bool] = True,
-    support_dev: Optional[bool] = True,
     attachment_handler: Optional[AttachmentHandler] = None,
 ):
     """
@@ -134,7 +130,6 @@ async def raw_export(
             fancy_times=fancy_times,
             before=None,
             after=None,
-            support_dev=support_dev,
             bot=bot,
             attachment_handler=attachment_handler
         ).export()

@@ -1,14 +1,10 @@
-import traceback
-import aiohttp
 import html
-import io
-from typing import List, Optional, Union
-from pytz import timezone
+from typing import List, Optional
 from datetime import timedelta
+from pytz import timezone
 
 from chat_exporter.construct.attachment_handler import AttachmentHandler
 from chat_exporter.ext.discord_import import discord
-
 from chat_exporter.construct.assets import Attachment, Component, Embed, Reaction
 from chat_exporter.ext.discord_utils import DiscordUtils
 from chat_exporter.ext.discriminator import discriminator
@@ -177,12 +173,8 @@ class MessageConstruct:
         is_bot = _gather_user_bot(message.author)
         user_colour = await self._gather_user_colour(message.author)
 
-        if not message.content and not getattr(message, 'interaction_metadata', None):
-            message.content = "Click to see attachment"
-        elif not message.content and getattr(message, 'interaction_metadata', None):
-            message.content = "Click to see command"
-
         icon = ""
+        dummy = ""
         def get_interaction_status(interaction_message):
             if hasattr(interaction_message, 'interaction_metadata'):
                 return interaction_message.interaction_metadata
@@ -191,8 +183,13 @@ class MessageConstruct:
         interaction_status = get_interaction_status(message)
         if not interaction_status and (message.embeds or message.attachments):
             icon = DiscordUtils.reference_attachment_icon
+            dummy = "Click to see attachment"
         elif interaction_status:
             icon = DiscordUtils.interaction_command_icon
+            dummy = "Click to see command"
+
+        if not message.content:
+            message.content = dummy
 
         _, message_edited_at = self.set_time(message)
 

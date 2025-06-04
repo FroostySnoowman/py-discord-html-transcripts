@@ -1,5 +1,4 @@
 from chat_exporter.ext.discord_import import discord
-
 from chat_exporter.ext.discord_utils import DiscordUtils
 from chat_exporter.ext.html_generator import (
     fill_out,
@@ -11,7 +10,6 @@ from chat_exporter.ext.html_generator import (
     PARSE_MODE_EMOJI,
     PARSE_MODE_MARKDOWN,
 )
-
 
 class Component:
     styles = {

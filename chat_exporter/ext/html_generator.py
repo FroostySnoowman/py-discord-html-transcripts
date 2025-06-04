@@ -1,4 +1,7 @@
+import html
+import json
 import os
+
 from chat_exporter.parse.mention import ParseMention
 from chat_exporter.parse.markdown import ParseMarkdown
 
@@ -11,6 +14,7 @@ PARSE_MODE_EMBED = 3
 PARSE_MODE_SPECIAL_EMBED = 4
 PARSE_MODE_REFERENCE = 5
 PARSE_MODE_EMOJI = 6
+PARSE_MODE_HTML_SAFE = 7
 
 async def fill_out(guild, base, replacements):
     for r in replacements:
@@ -32,8 +36,13 @@ async def fill_out(guild, base, replacements):
             v = await ParseMarkdown(v).message_reference_flow()
         elif mode == PARSE_MODE_EMOJI:
             v = await ParseMarkdown(v).special_emoji_flow()
+        elif mode == PARSE_MODE_HTML_SAFE:
+            # escape html characters
+            v = html.escape(v, quote=True)
+            # escape characters that could be used for xss
+            v = json.dumps(v, ensure_ascii=False)[1:-1]
 
-        base = base.replace("{{" + k + "}}", v.strip())
+        base = base.replace("{{" + k + "}}", str(v or "").strip())
 
     return base
 

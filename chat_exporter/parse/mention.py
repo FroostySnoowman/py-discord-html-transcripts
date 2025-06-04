@@ -1,8 +1,9 @@
-import re
-import pytz
 import datetime
 import time
+import pytz
+import re
 from typing import Optional
+
 from chat_exporter.ext.discord_import import discord
 from chat_exporter.parse.markdown import ParseMarkdown
 

@@ -7,7 +7,6 @@ class ParseMarkdown:
         self.content = content
         self.code_blocks_content = []
 
-
     async def standard_message_flow(self):
         self.parse_code_block_markdown()
         self.https_http_links()

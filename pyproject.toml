@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "py_discord_html_transcripts"
 description = "A simple Discord chat exporter for Python Discord bots."
-version = "2.2.0"
+version = "2.3.0"
 readme = "README.md"
 authors = [
     { name="FroostySnoowman", email="froostysnoowmanbusiness@gmail.com" }

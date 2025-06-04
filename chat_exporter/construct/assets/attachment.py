@@ -10,7 +10,6 @@ from chat_exporter.ext.html_generator import (
     PARSE_MODE_NONE,
 )
 
-
 class Attachment:
     def __init__(self, attachments, guild):
         self.attachments = attachments
@@ -88,16 +87,19 @@ class Attachment:
             "arj", "pkg", "z"
         )
 
-        extension = self.attachments.proxy_url.rsplit('.', 1)[1]
-        if extension in acrobat_types:
-            return DiscordUtils.file_attachment_acrobat
-        elif extension in webcode_types:
-            return DiscordUtils.file_attachment_webcode
-        elif extension in code_types:
-            return DiscordUtils.file_attachment_code
-        elif extension in document_types:
-            return DiscordUtils.file_attachment_document
-        elif extension in archive_types:
-            return DiscordUtils.file_attachment_archive
-        else:
-            return DiscordUtils.file_attachment_unknown
+        for tmp in [self.attachments.proxy_url, self.attachments.filename]:
+            if not tmp:
+                continue
+            extension = tmp.rsplit('.', 1)[-1]
+            if extension in acrobat_types:
+                return DiscordUtils.file_attachment_acrobat
+            elif extension in webcode_types:
+                return DiscordUtils.file_attachment_webcode
+            elif extension in code_types:
+                return DiscordUtils.file_attachment_code
+            elif extension in document_types:
+                return DiscordUtils.file_attachment_document
+            elif extension in archive_types:
+                return DiscordUtils.file_attachment_archive
+        
+        return DiscordUtils.file_attachment_unknown

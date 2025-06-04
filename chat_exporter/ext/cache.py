@@ -10,7 +10,6 @@ def _wrap_and_store_coroutine(cache, key, coro):
         return value
     return func()
 
-
 def _wrap_new_coroutine(value):
     async def new_coroutine():
         return value

@@ -1,7 +1,6 @@
 import html
 
 from chat_exporter.ext.discord_import import discord
-
 from chat_exporter.ext.html_generator import (
     fill_out,
     embed_body,
@@ -23,12 +22,10 @@ from chat_exporter.ext.html_generator import (
 
 modules_which_use_none = ["nextcord", "disnake"]
 
-
 def _gather_checker():
     if discord.module not in modules_which_use_none and hasattr(discord.Embed, "Empty"):
         return discord.Embed.Empty
     return None
-
 
 class Embed:
     r: str

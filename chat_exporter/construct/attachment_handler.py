@@ -1,10 +1,10 @@
-import urllib.parse
 import datetime
-import pathlib
-import aiohttp
 import io
+import pathlib
 from typing import Union
+import urllib.parse
 
+import aiohttp
 from chat_exporter.ext.discord_import import discord
 
 class AttachmentHandler:
@@ -40,7 +40,6 @@ class AttachmentToLocalFileHostHandler(AttachmentHandler):
 		attachment.url = file_url
 		attachment.proxy_url = file_url
 		return attachment
-
 
 class AttachmentToDiscordChannelHandler(AttachmentHandler):
 	"""Save the attachment to a discord channel and embed the assets in the transcript from there."""
